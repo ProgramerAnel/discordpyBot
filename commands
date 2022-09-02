@@ -1,0 +1,8 @@
+view running processes in background with
+ps ax | grep bot.py
+
+kill PID
+
+
+nohup python -u ./test.py &
+nohup python -u ./test.py > output.log &

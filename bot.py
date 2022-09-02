@@ -1,6 +1,4 @@
- 
-from cProfile import label
-from msilib.schema import ComboBox
+
 import os  
 import discord
 from discord.ui import Modal, InputText, Select
@@ -45,7 +43,7 @@ class MyModal(Modal):
         _site = self.children[1].value
         _price = self.children[2].value
         _note = self.children[3].value
- 
+        print(f'Sold request for sku {_sku}')
         sql = '''SELECT
             CASE WHEN Active = 1 THEN 1 Else 0 End AS ActiveEbay,
             CASE WHEN Active = 1 then 'https://www.ebay.com/itm/' + cast(ebay_id as nvarchar ) else null end as EbayLink,
@@ -55,8 +53,8 @@ class MyModal(Modal):
             CASE WHEN ActivePoshmark  = 1 then POSHMARK_LINK else null end as PoshmarkLink,
             CASE WHEN activemercari  = 1 THEN 1 Else 0 End AS ActiveMercari ,
             CASE WHEN activemercari  = 1 then MERCARI_LINK else null end as MercariLink,
-            ID, Title,(select top 1 PICTURE_PATH from ACTIVE_ITEMS_PICTURES where ACTIVE_ITEMS_PICTURES.ACTIVE_ITEMS_ID = ACTIVE_ITEMS.ID) IMG
-        FROM ACTIVE_ITEMS where sku = ?'''
+            ID, Title,(select top 1 PICTURE_PATH from sellduct.dbo.ACTIVE_ITEMS_PICTURES where ACTIVE_ITEMS_PICTURES.ACTIVE_ITEMS_ID = ACTIVE_ITEMS.ID) IMG
+        FROM sellduct.dbo.ACTIVE_ITEMS where sku = ?'''
         
         myData = myDB.execute_and_fetch(sql,_sku)
         for ActiveEbay,EbayLink,ActiveEtsy,EtsyLink,ActivePoshmark,PoshmarkLink,ActiveMercari,MercariLink,ID,Title,IMG in myData:
@@ -69,15 +67,15 @@ class MyModal(Modal):
             embMsg.add_field(name="Mercari", value=MercariLink, inline=False) 
             embMsg.timestamp = datetime.datetime.utcnow()
             embMsg.set_footer(text='Bot by programerAnel@gmail.com',icon_url= 'https://i.imgur.com/wSTFkRM.png')
-            embMsg.set_thumbnail(url=IMG)
+            # embMsg.set_thumbnail(url=IMG)
             # if ActiveEbay==1:
-            #     myDB.execute("INSERT INTO QUEUE(ACTIVE_ITEMS_ID,SITE,TYPER)VALUES('?','Ebay','End')",ID)
+            #     myDB.execute("INSERT INTO sellduct.dbo.QUEUE(ACTIVE_ITEMS_ID,SITE,TYPER)VALUES('?','Ebay','End')",ID)
             # if ActiveEtsy==1:
-            #     myDB.execute("INSERT INTO QUEUE(ACTIVE_ITEMS_ID,SITE,TYPER)VALUES('?','Etsy','End')",ID)
+            #     myDB.execute("INSERT INTO sellduct.dbo.QUEUE(ACTIVE_ITEMS_ID,SITE,TYPER)VALUES('?','Etsy','End')",ID)
             # if ActivePoshmark:
-            #     myDB.execute("INSERT INTO QUEUE(ACTIVE_ITEMS_ID,SITE,TYPER)VALUES('?','Poshmark','End')",ID)
+            #     myDB.execute("INSERT INTO sellduct.dbo.QUEUE(ACTIVE_ITEMS_ID,SITE,TYPER)VALUES('?','Poshmark','End')",ID)
             # if ActiveMercari:
-            #     myDB.execute("INSERT INTO QUEUE(ACTIVE_ITEMS_ID,SITE,TYPER)VALUES('?','Mercari','End')",ID)
+            #     myDB.execute("INSERT INTO sellduct.dbo.QUEUE(ACTIVE_ITEMS_ID,SITE,TYPER)VALUES('?','Mercari','End')",ID)
 
 
         # myDB.execute("UPDATE sellduct.DBO.ACTIVE_ITEMS SET sold_price = ?, Active = 0, sold_site = ?, SOLD_DATE = getdate(),SOLD_NOTE = ? WHERE SKU = ? ", _price,
@@ -103,10 +101,10 @@ async def on_message(message):
     if '/check' in message.content:
         sku = message.content.split('/check')[1].replace('#','').replace(' ','')
         await getSqlData(sku,message)
-
+        print(f'Check request for sku {sku}')
 async def getSqlData(sku, message):
-    mySQLData = myDB.execute_and_fetch('select Mercari_price,POSHMARK_PRICE,Title,Price,isnull(Active,0) Active,ActiveEtsy,ActivePoshmark,activemercari,POSHMARK_LINK,MERCARI_LINK,SPECIFICS_JSON,ebay_id,(select top 1 PICTURE_PATH from ACTIVE_ITEMS_PICTURES where ACTIVE_ITEMS_PICTURES.ACTIVE_ITEMS_ID = ACTIVE_ITEMS.ID) IMG from Active_Items where SKU = ?', sku) 
-    for Mercari_price,POSHMARK_PRICE,Title,Price,Active,ActiveEtsy,ActivePoshmark,activemercari,POSHMARK_LINK,MERCARI_LINK,SPECIFICS_JSON,ebay_id in mySQLData:
+    mySQLData = myDB.execute_and_fetch('select Mercari_price,POSHMARK_PRICE,Title,Price,isnull(Active,0) Active,ActiveEtsy,ActivePoshmark,activemercari,POSHMARK_LINK,MERCARI_LINK,SPECIFICS_JSON,ebay_id,(select top 1 PICTURE_PATH from sellduct.dbo.ACTIVE_ITEMS_PICTURES where ACTIVE_ITEMS_PICTURES.ACTIVE_ITEMS_ID = ACTIVE_ITEMS.ID) IMG from sellduct.dbo.Active_Items where SKU = ?', sku) 
+    for Mercari_price,POSHMARK_PRICE,Title,Price,Active,ActiveEtsy,ActivePoshmark,activemercari,POSHMARK_LINK,MERCARI_LINK,SPECIFICS_JSON,ebay_id,IMG in mySQLData:
         myTitle = Title
         myEbayID = ebay_id
 
