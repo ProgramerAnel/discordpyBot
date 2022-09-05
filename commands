@@ -4,5 +4,5 @@ ps ax | grep bot.py
 kill PID
 
 
-nohup python -u ./test.py &
-nohup python -u ./test.py > output.log &
+nohup python -u ./bot.py &
+nohup python -u ./bot.py > output.log &

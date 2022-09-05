@@ -5,8 +5,8 @@ load_dotenv()
 
 class DBSQL:
     def __init__(self):
-        # self.driver = '{ODBC Driver 18 for SQL Server}'
-        self.driver = '{SQL Server}'
+        self.driver = '{ODBC Driver 18 for SQL Server}'
+        #self.driver = '{SQL Server}'
         self.server = os.getenv('SQL_SERVER')
         self.db = os.getenv('SQL_DATABASE')
         self.user = os.getenv('SQL_USER')
