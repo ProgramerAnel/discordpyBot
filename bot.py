@@ -7,6 +7,7 @@ import random
 import datetime
 from dotenv import load_dotenv
 from db_SQL import DBSQL
+from db_mySQL import insert_sold_remote_record
 load_dotenv()
 myDB = DBSQL()
 
@@ -67,19 +68,22 @@ class MyModal(Modal):
             embMsg.add_field(name="Mercari", value=MercariLink, inline=False) 
             embMsg.timestamp = datetime.datetime.utcnow()
             embMsg.set_footer(text='Bot by programerAnel@gmail.com',icon_url= 'https://i.imgur.com/wSTFkRM.png')
-            # embMsg.set_thumbnail(url=IMG)
-            # if ActiveEbay==1:
-            #     myDB.execute("INSERT INTO sellduct.dbo.QUEUE(ACTIVE_ITEMS_ID,SITE,TYPER)VALUES('?','Ebay','End')",ID)
-            # if ActiveEtsy==1:
-            #     myDB.execute("INSERT INTO sellduct.dbo.QUEUE(ACTIVE_ITEMS_ID,SITE,TYPER)VALUES('?','Etsy','End')",ID)
-            # if ActivePoshmark:
-            #     myDB.execute("INSERT INTO sellduct.dbo.QUEUE(ACTIVE_ITEMS_ID,SITE,TYPER)VALUES('?','Poshmark','End')",ID)
-            # if ActiveMercari:
-            #     myDB.execute("INSERT INTO sellduct.dbo.QUEUE(ACTIVE_ITEMS_ID,SITE,TYPER)VALUES('?','Mercari','End')",ID)
+            embMsg.set_thumbnail(url=IMG)
+            if ActiveEbay==1:
+                if _sku[0]=='8':
+                    insert_sold_remote_record(_sku)
+                else:
+                    myDB.execute("INSERT INTO sellduct.dbo.QUEUE(ACTIVE_ITEMS_ID,SITE,TYPER)VALUES('?','Ebay','End')",ID)
+            if ActiveEtsy==1:
+                myDB.execute("INSERT INTO sellduct.dbo.QUEUE(ACTIVE_ITEMS_ID,SITE,TYPER)VALUES('?','Etsy','End')",ID)
+            if ActivePoshmark:
+                myDB.execute("INSERT INTO sellduct.dbo.QUEUE(ACTIVE_ITEMS_ID,SITE,TYPER)VALUES('?','Poshmark','End')",ID)
+            if ActiveMercari:
+                myDB.execute("INSERT INTO sellduct.dbo.QUEUE(ACTIVE_ITEMS_ID,SITE,TYPER)VALUES('?','Mercari','End')",ID)
 
 
-        # myDB.execute("UPDATE sellduct.DBO.ACTIVE_ITEMS SET sold_price = ?, Active = 0, sold_site = ?, SOLD_DATE = getdate(),SOLD_NOTE = ? WHERE SKU = ? ", _price,
-        #             _site, _note, _sku)
+        myDB.execute("UPDATE sellduct.DBO.ACTIVE_ITEMS SET sold_price = ?, Active = 0, sold_site = ?, SOLD_DATE = getdate(),SOLD_NOTE = ? WHERE SKU = ? ", _price,
+                    _site, _note, _sku)
 
         await interaction.response.send_message(embed=embMsg)
 
